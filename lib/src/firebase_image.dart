@@ -27,7 +27,7 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
   /// The model for the image object
   final FirebaseImageObject _imageObject;
 
-  /// Fetches, saves and returns an ImageProvider for any image in a readable Firebase Cloud Storeage bucket.
+  /// Fetches, saves and returns an ImageProvider for any image in a readable Firebase Cloud Storage bucket.
   ///
   /// [location] The URI of the image, in the bucket, to be displayed
   /// [shouldCache] Default: True. Specified whether or not an image should be cached (optional)
