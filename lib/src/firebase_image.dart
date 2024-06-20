@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -28,7 +27,7 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
   /// The model for the image object
   final FirebaseImageObject _imageObject;
 
-  /// Fetches, saves and returns an ImageProvider for any image in a readable Firebase Cloud Storeage bucket.
+  /// Fetches, saves and returns an ImageProvider for any image in a readable Firebase Cloud Storage bucket.
   ///
   /// [location] The URI of the image, in the bucket, to be displayed
   /// [shouldCache] Default: True. Specified whether or not an image should be cached (optional)
@@ -40,7 +39,7 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
     String location, {
     this.shouldCache = true,
     this.scale = 1.0,
-    this.maxSizeBytes = 2500 * 1000, // 2.5MB
+    this.maxSizeBytes = 2560 * 1024, // 2.5MB
     this.cacheRefreshStrategy = CacheRefreshStrategy.BY_METADATA_DATE,
     this.firebaseApp,
   }) : _imageObject = FirebaseImageObject(
@@ -105,8 +104,8 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
   }
 
   Future<Codec> _fetchImageCodec() async {
-    return await PaintingBinding.instance!
-        .instantiateImageCodec(await _fetchImage());
+    return await PaintingBinding.instance.instantiateImageCodecWithSize(
+        await ImmutableBuffer.fromUint8List(await _fetchImage()));
   }
 
   @override
@@ -115,7 +114,8 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
   }
 
   @override
-  ImageStreamCompleter load(FirebaseImage key, DecoderCallback decode) {
+  ImageStreamCompleter loadImage(
+      FirebaseImage key, ImageDecoderCallback decode) {
     return MultiFrameImageStreamCompleter(
       codec: key._fetchImageCodec(),
       scale: key.scale,
@@ -123,15 +123,15 @@ class FirebaseImage extends ImageProvider<FirebaseImage> {
   }
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other.runtimeType != runtimeType) return false;
-    final FirebaseImage typedOther = other;
+    final FirebaseImage typedOther = other as FirebaseImage;
     return _imageObject.uri == typedOther._imageObject.uri &&
         scale == typedOther.scale;
   }
 
   @override
-  int get hashCode => hashValues(_imageObject.uri, scale);
+  int get hashCode => Object.hash(_imageObject.uri, scale);
 
   @override
   String toString() => '$runtimeType("${_imageObject.uri}", scale: $scale)';
